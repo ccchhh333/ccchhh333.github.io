@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <title>Chap3 小车</title>
+    <script id="rot-v-shader" type="x-shader/x-vertex">
+	attribute vec4 vPosition;
+	uniform float theta;
+
+	void main()
+	{
+		float u = cos( theta );
+		float v = sin( theta );
+
+		gl_Position.x = vPosition.x * u - vPosition.y * v;
+		gl_Position.y = vPosition.x * v + vPosition.y * u;
+		gl_Position.z = 0.0;
+		gl_Position.w = 1.0;
+	}
+	
+	</script>
+
+    <script id="rot-f-shader" type="x-shader/x-fragment">
+	precision mediump float;
+
+	void main()
+	{
+		gl_FragColor = vec4( 0.0, 0.0, 1.0, 1.0 );
+	}
+	</script>
+
+    <script type="text/javascript" src="../js/common/webgk-utils.js"></script>
+    <script type="text/javascript" src="../js/common/initShaders.js"></script>
+    <script type="text/javascript" src="../js/common/gl-matrix.js"></script>
+
+    <script type="text/javascript" src="../js/ch03/cheche.js"></script>
+
+</head>
+<style>
+	<style>
+	    * {
+			
+	               margin: 0;
+	               padding: 0;
+	           }
+	    
+	           .box {
+	               width: 1200px;
+	               height: 800px;
+	               background: #aaff7f;
+	               border: 10px solid yellow;
+	               margin: auto;
+	               position: relative;
+	               /* verflow: hidden; */
+	    
+	           }
+			   #txt{
+				   font-size: 3em;
+				   width: 300px;
+				   height: 100px;
+				   border: 10px solid blue;
+				   position: relative;
+			   }
+
+	</style>
+</style>
+<body onload="initRotSquare()">
+    <h1>Control cheche</h1><br>
+	用w s a d控制小车接住金币
+    <h2>积分器</h2><input type="text" id="txt">
+   <div class="box">
+	   <canvas id="rot-canvas" width="512" height="512">你的浏览器不支持HTML5 canvas元素</canvas>
+   </div>
+	
+</body>
+<script type="text/javascript" >
+			var c=0;
+					document.getElementById('txt').value = c;
+		    var oBox=document.getElementById( "rot-canvas" );
+		
+		    var x=0;y=0;
+		
+		    document.onkeydown=function(ev){
+		        // console.log(ev.keyCode);
+		        if(ev.keyCode==65){
+		            // 左键
+		            x=x-10;
+		            // console.log(ev.keyCode);
+		            oBox.style.marginLeft=x+"px";
+		        }else if(ev.keyCode==87){
+		            // 上键
+		            y=y-10;
+		            oBox.style.marginTop=y+"px";
+		        }else if(ev.keyCode==68){
+		            // 右键
+		            x=x+10;
+		            oBox.style.marginLeft=x+"px";
+		        }else if(ev.keyCode==83){
+		            // 下键
+		            y=y+10;
+		            oBox.style.marginTop=y+"px";
+		        }
+		    }
+ function Snowflake() {
+        //获取元素div盒子
+        this.obox = document.querySelector(".box");
+ 
+    };
+    Snowflake.prototype.init = function () {
+        //创建爱心图片
+        let creatimg = document.createElement("img");
+        creatimg.src = "金币.jpg";
+        //图片随机大小为30-50px
+        let creatsize = this.sj(30, 50);
+        //随机图片的位置(在div盒子左边距离到右边距离之间)
+        let leftwz = this.sj(0, this.obox.offsetWidth - creatsize);
+        //让随机创建的图片在盒子的上方
+        let topwz = -creatsize;
+        //将创建的图片插入到盒子上方
+        this.obox.appendChild(creatimg);
+        //给图片设置css样式
+        creatimg.style.cssText = `width:${creatsize}px;height:${creatsize}px;position:absolute;left:${leftwz}px;top:${topwz}px;`;
+ 
+        //随机产生正负号，针对水平方向(实现图片随机左右移动)。
+        let sign = Math.random() > 0.5 ? '-' : '';
+        //设置图片随机左右移动的速度  
+        let speedX = parseInt(sign + this.sj(1, 3));
+        //设置图片随机的垂直移动的速度  
+        let speedY = this.sj(2, 4);
+        //利用计时器,不断的给随机的图片left和top赋值，从而达到爱心飘落的感觉
+        creatimg.timer = setInterval(() => {
+            leftwz += speedX;
+            topwz += speedY;
+            //判随机飘落的爱心是否超出了盒子;
+            if (leftwz < -creatsize || leftwz > this.obox.offsetWidth || topwz > this.obox.offsetHeight) {
+                //超出，关闭计时器，清除创建的爱心
+                clearInterval(creatimg.timer);
+                this.obox.removeChild(creatimg);
+            }
+			if ((leftwz <=x+350&&leftwz >=x+150) &&  (topwz <=y+480&&topwz>=y+330)) {
+			    //超出，关闭计时器，清除创建的爱心
+				c=c+1;
+				 document.getElementById('txt').value = c;
+			    clearInterval(creatimg.timer);
+			    this.obox.removeChild(creatimg);
+			}
+            //赋值爱心的位置
+            creatimg.style.left = leftwz + "px";
+            creatimg.style.top = topwz + "px";
+ 
+        }, 1000 / 60);
+    };
+ 
+    //调用
+    Snowflake.prototype.creat = function () {
+        setInterval(() => {
+            this.init();
+        }, 800);
+    }
+ 
+    //封装一个可以min到max的随机数
+    Snowflake.prototype.sj = function (min, max) {
+        return Math.round(Math.random() * (max - min) + min);
+    }
+ 
+    //调用
+    let s1 = new Snowflake();
+    s1.creat();
+
+	</script>
+</html>
